@@ -11,7 +11,6 @@ def avanca_pagina(soup,url_base):
         prox_pagina = url_base + url_prox_pagina
         response_next_pagina = requests.get(prox_pagina)
         captura_dados_e_printa(response_next_pagina)
-        return response_next_pagina
     except Exception as e:
         print('Chegou na ultima pagina. ')
 
