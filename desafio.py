@@ -4,7 +4,26 @@ import json
 from bs4 import BeautifulSoup
 
 
-def avanca_pagina(soup,url_base):
+def login(url, username, password):
+    session = requests.Session()
+    url_login = url + "login"
+    response_login = session.get(url_login)
+    soup = BeautifulSoup(response_login.text, "html.parser")
+    csrf_token = soup.find(
+        'input', {"name": "csrf_token", "value": True})['value']
+    data = {
+        "csrf_token": csrf_token,
+        "username": username,
+        "password": password
+    }
+    resposta_login = session.post(url=url_login, data=data)
+    if resposta_login.status_code == 200:
+        return resposta_login, session, 'ok'
+    else:
+        return resposta_login, session, 'erro_login'
+
+
+def avanca_pagina(soup, url_base):
     try:
         url_prox_pagina = soup.find(
             'li', {"class": "next"}).find('a').get('href')
@@ -15,7 +34,7 @@ def avanca_pagina(soup,url_base):
         print('Chegou na ultima pagina. ')
 
 
-def captura_dados_e_printa(response,url):
+def captura_dados_e_printa(response, url, sessao):
     """recebe um response da pagina 'quotes.toscrape' e printa as informações como:
         'Citacao', 'Autor', 'Tags'
 
@@ -41,14 +60,24 @@ def captura_dados_e_printa(response,url):
                          ensure_ascii=False)
               )
 
-    avanca_pagina(soup,url_base=url)
+    avanca_pagina(soup, url_base=url)
 
 
 def run():
     url = 'https://quotes.toscrape.com/'
-    response = requests.get(url)
-    captura_dados_e_printa(response=response,url=url)
-    
-    
+    user = 'wesley'
+    password = '12345'
+    s = requests.Session()
+    response_logado, sessao, status_login = login(
+        username=user, password=password, url=url)
+    print(status_login)
+    if status_login == 'ok':
+        response_logado = sessao.get(url)
+        captura_dados_e_printa(response=response_logado,
+                               url=url, sessao=sessao)
+    else:
+        raise Exception('Erro de login. tente novamente')
+
+
 if __name__ == '__main__':
     run()
