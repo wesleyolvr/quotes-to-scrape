@@ -4,7 +4,9 @@ import json
 from bs4 import BeautifulSoup
 
 
-# corrigir requisições para paginar
+def logout(session):
+    url_logout = "https://quotes.toscrape.com/logout"
+    session.get(url_logout)
 
 def login(url, username, password):
     session = requests.Session()
@@ -23,8 +25,6 @@ def login(url, username, password):
         return resposta_login, session, 'ok'
     else:
         return resposta_login, session, 'erro_login'
-
-# avanca pagina mexer aqui
 
 
 def avanca_pagina(soup, sessao):
@@ -83,6 +83,7 @@ def run():
         captura_dados_e_printa(response=response_logado,
                                sessao=sessao)
     else:
+        logout(sessao)
         raise Exception('Erro de login. tente novamente')
 
 
