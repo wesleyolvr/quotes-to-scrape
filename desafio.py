@@ -4,7 +4,7 @@ import json
 from bs4 import BeautifulSoup
 
 
-def desafio(response):
+def captura_dados_e_printa(response):
     """recebe um response da pagina 'quotes.toscrape' e printa as informações como:
         'Citacao', 'Autor', 'Tags'
 
@@ -31,8 +31,8 @@ def desafio(response):
         return
     next_page = url_base + url_next_page
     response = requests.get(next_page)
-    desafio(response)
+    captura_dados_e_printa(response)
 
 url_base = 'https://quotes.toscrape.com/'
 response = requests.get(url_base)
-desafio(response)
+captura_dados_e_printa(response)
