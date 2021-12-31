@@ -39,20 +39,20 @@ def login(url, username, password):
     return resultado
 
 
-def avanca_pagina(soup, sessao,lista_citacoes):
+def avanca_pagina(soup, sessao, lista_citacoes):
     url = 'https://quotes.toscrape.com'
     try:
         url_prox_pagina = soup.find(
             'li', {"class": "next"}).find('a').get('href')
         prox_pagina = url + url_prox_pagina
-        captura_dados_e_printa(sessao=sessao,
+        captura_dados(sessao=sessao,
                                url=prox_pagina,
                                lista_citacoes=lista_citacoes)
     except AttributeError:
         print('Chegou na ultima pagina. ')
 
 
-def captura_dados_e_printa(sessao, url, lista_citacoes):
+def captura_dados(sessao, url, lista_citacoes):
     """recebe um response da pagina 'quotes.toscrape' e printa as informações como:
         'Citacao', 'Autor', 'Tags'
 
@@ -69,6 +69,7 @@ def captura_dados_e_printa(sessao, url, lista_citacoes):
             'small', {"class": "author"}).get_text(strip=True)
         soup_tags = citacao.find('div', {"class": "tags"}).findAll('a')
         tags = [tag.getText() for tag in soup_tags]
+        tags = ', '.join(tags)
         dados = {
             'citacao': frase,
             'autor': author,
@@ -77,33 +78,35 @@ def captura_dados_e_printa(sessao, url, lista_citacoes):
         lista_citacoes.append(dados)
 
     avanca_pagina(
-        soup = soup,
-        sessao = sessao,
+        soup=soup,
+        sessao=sessao,
         lista_citacoes=lista_citacoes
     )
     return lista_citacoes
 
+def save_csv(lista_citacoes):
+    df = pd.DataFrame(lista_citacoes)
+    file_name = 'quotes.csv'
+    df.to_csv(file_name, encoding='utf-8', index=False)
 
 def run():
-    url='https://quotes.toscrape.com/'
-    user='wesley'
-    password='12345'
-    resposta_login=login(
-        username = user, password = password, url = url)
-    sessao=resposta_login['session']
+    url = 'https://quotes.toscrape.com/'
+    user = 'wesley'
+    password = 'wesleypassword'
+    resposta_login = login(
+        username=user, password=password, url=url)
+    sessao = resposta_login['session']
     if resposta_login['mensagem'] == 'ok':
-        return captura_dados_e_printa(sessao = sessao,
-                               url = url,
-                               lista_citacoes = [])
+        dados = captura_dados(
+            sessao=sessao,
+            url=url,
+            lista_citacoes=[])
+        save_csv(dados)
     else:
         logout(sessao)
         raise Exception('Erro de login. tente novamente')
 
 
 if __name__ == '__main__':
-    dados = run()
-    df = pd.DataFrame(dados)
-    print(df)
-    file_name = 'citacoes.csv'
-    df.to_csv(file_name, sep=',')
+    run()
     
