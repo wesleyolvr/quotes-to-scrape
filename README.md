@@ -1,2 +1,2 @@
 # quotes-to-scrape
-script to practice scraping with BeautifulSoup.
+script to practice scraping. 
